@@ -55,7 +55,7 @@ router.get('/examples/:id', requireToken, (req, res, next) => {
 		.catch(next)
 })
 
-// CREATE
+// CREATE0
 // POST /products
 router.post('/products', requireToken, (req, res, next) => {
 	// set owner of new example to be current user
