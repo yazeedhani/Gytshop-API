@@ -44,15 +44,33 @@ router.get('/products', (req, res, next) => {
 })
 
 // SHOW
-// GET /examples/5a7db6c74d55bc51bdf39793
+// GET /products/5a7db6c74d55bc51bdf39793
 router.get('/products/:id', (req, res, next) => {
 	// req.params.id will be set based on the `:id` in the route
 	Product.findById(req.params.id)
 		.then(handle404)
-		// if `findById` is succesful, respond with 200 and "example" JSON
+		// if `findById` is succesful, respond with 200 and "product" JSON
 		.then((product) => res.status(200).json({ product: product.toObject() }))
 		// if an error occurs, pass it to the handler
 		.catch(next)
+})
+
+// MINE
+// GET /products/mine
+router.get('/mine', requireToken, (req, res, next) => {
+	// Find the products
+	Product.findById()
+	.then((products) => {
+		// `products` will be an array of Mongoose documents
+		// we want to convert each one to a POJO, so we use `.map` to
+		// apply `.toObject` to each one
+		const mine = requireOwnership(req, products)
+		return products.map((products) => products.toObject())
+	})
+	// respond with status 200 and JSON of the products
+	.then((products) => res.status(200).json({ products: products }))
+	// if an error occurs, pass it to the handler
+	.catch(next)
 })
 
 // CREATE
