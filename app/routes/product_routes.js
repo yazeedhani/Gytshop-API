@@ -55,7 +55,7 @@ router.get('/examples/:id', requireToken, (req, res, next) => {
 		.catch(next)
 })
 
-// CREATE0
+// CREATE
 // POST /products
 router.post('/products', requireToken, (req, res, next) => {
 	// set owner of new example to be current user
@@ -96,15 +96,15 @@ router.patch('/examples/:id', requireToken, removeBlanks, (req, res, next) => {
 })
 
 // DESTROY
-// DELETE /examples/5a7db6c74d55bc51bdf39793
-router.delete('/examples/:id', requireToken, (req, res, next) => {
+// DELETE /products/
+router.delete('/products/:id', requireToken, (req, res, next) => {
 	Product.findById(req.params.id)
 		.then(handle404)
-		.then((example) => {
-			// throw an error if current user doesn't own `example`
-			requireOwnership(req, example)
-			// delete the example ONLY IF the above didn't throw
-			example.deleteOne()
+		.then((product) => {
+			// Error if current user does not own the product
+			requireOwnership(req, product)
+			// Delete the product ONLY IF the above didn't error
+			product.deleteOne()
 		})
 		// send back 204 and no content if the deletion succeeded
 		.then(() => res.sendStatus(204))
