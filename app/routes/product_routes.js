@@ -27,8 +27,9 @@ const requireToken = passport.authenticate('bearer', { session: false })
 // instantiate a router (mini app that only handles routes)
 const router = express.Router()
 
-// INDEX
-// GET /products
+
+/******************** ROUTES *******************/
+// INDEX -> GET /products
 router.get('/products', (req, res, next) => {
 	Product.find()
 		.then((products) => {
@@ -38,13 +39,32 @@ router.get('/products', (req, res, next) => {
 			return products.map((products) => products.toObject())
 		})
 		// respond with status 200 and JSON of the products
-		.then((products) => res.status(200).json({ products: products }))
+		.then( (products) => res.status(200).json({ products: products }))
 		// if an error occurs, pass it to the handler
 		.catch(next)
 })
 
-// SHOW
-// GET /examples/5a7db6c74d55bc51bdf39793
+// INDEX electronics products -> GET /products/electronics
+router.get('/products/electronics', (req, res, next) => {
+	Product.find({ category: 'electronics' })
+		.then( electronics => {
+			return electronics.map( (electronics) => electronics.toObject())
+		})
+		.then( (electronics) => res.status(200).json({electronics: electronics}))
+		.catch(next)
+})
+
+// INDEX clothing products -> GET /products/clothing
+router.get('/products/clothing', (req, res, next) => {
+	Product.find({ category: 'clothing' })
+		.then( clothing => {
+			return clothing.map( (clothing) => clothing.toObject())
+		})
+		.then( (clothing) => res.status(200).json({clothing: clothing}))
+		.catch(next)
+})
+
+// SHOW -> GET /products/5a7db6c74d55bc51bdf39793
 router.get('/products/:id', (req, res, next) => {
 	// req.params.id will be set based on the `:id` in the route
 	Product.findById(req.params.id)
@@ -55,8 +75,8 @@ router.get('/products/:id', (req, res, next) => {
 		.catch(next)
 })
 
-// CREATE
-// POST /products
+
+// CREATE -> POST /products
 router.post('/products', requireToken, (req, res, next) => {
 	// set owner of new example to be current user
 	req.body.product.owner = req.user.id
@@ -72,8 +92,7 @@ router.post('/products', requireToken, (req, res, next) => {
 		.catch(next)
 })
 
-// UPDATE
-// PATCH /examples/5a7db6c74d55bc51bdf39793
+// UPDATE -> PATCH /products/5a7db6c74d55bc51bdf39793
 router.patch('/products/:id', requireToken, removeBlanks, (req, res, next) => {
 	// if the client attempts to change the `owner` property by including a new
 	// owner, prevent that by deleting that key/value pair
@@ -95,8 +114,7 @@ router.patch('/products/:id', requireToken, removeBlanks, (req, res, next) => {
 		.catch(next)
 })
 
-// DESTROY
-// DELETE /products/
+// DESTROY -> DELETE /products/
 router.delete('/products/:id', requireToken, (req, res, next) => {
 	Product.findById(req.params.id)
 		.then(handle404)
@@ -111,5 +129,7 @@ router.delete('/products/:id', requireToken, (req, res, next) => {
 		// if an error occurs, pass it to the handler
 		.catch(next)
 })
+
+/***********************************************/
 
 module.exports = router
