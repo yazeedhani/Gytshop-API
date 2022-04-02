@@ -44,15 +44,33 @@ router.get('/products', (req, res, next) => {
 })
 
 // SHOW
-// GET /examples/5a7db6c74d55bc51bdf39793
-router.get('/examples/:id', requireToken, (req, res, next) => {
+// GET /products/5a7db6c74d55bc51bdf39793
+router.get('/products/:id', requireToken, (req, res, next) => {
 	// req.params.id will be set based on the `:id` in the route
 	Product.findById(req.params.id)
 		.then(handle404)
-		// if `findById` is succesful, respond with 200 and "example" JSON
-		.then((example) => res.status(200).json({ example: example.toObject() }))
+		// if `findById` is succesful, respond with 200 and "product" JSON
+		.then((product) => res.status(200).json({ product: product.toObject() }))
 		// if an error occurs, pass it to the handler
 		.catch(next)
+})
+
+// MINE
+// GET /products/mine
+router.get('/mine', requireToken, (req, res, next) => {
+	// Find the products
+	Product.findById()
+	.then((products) => {
+		// `products` will be an array of Mongoose documents
+		// we want to convert each one to a POJO, so we use `.map` to
+		// apply `.toObject` to each one
+		const mine = requireOwnership(req, products)
+		return products.map((products) => products.toObject())
+	})
+	// respond with status 200 and JSON of the products
+	.then((products) => res.status(200).json({ products: products }))
+	// if an error occurs, pass it to the handler
+	.catch(next)
 })
 
 // CREATE
@@ -74,7 +92,7 @@ router.post('/products', requireToken, (req, res, next) => {
 
 // UPDATE
 // PATCH /examples/5a7db6c74d55bc51bdf39793
-router.patch('/examples/:id', requireToken, removeBlanks, (req, res, next) => {
+router.patch('/products/:id', requireToken, removeBlanks, (req, res, next) => {
 	// if the client attempts to change the `owner` property by including a new
 	// owner, prevent that by deleting that key/value pair
 	delete req.body.example.owner
