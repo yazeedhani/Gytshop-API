@@ -43,7 +43,7 @@ router.get('/products', (req, res, next) => {
 		.catch(next)
 })
 
-//INDEX OF PRODUCTS 
+//INDEX OF PRODUCT
 //GET /products/collectibles
 router.get('/products/collectibles', (req,res,next) => {
 	Product.find({category:'collectibles'})
