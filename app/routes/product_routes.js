@@ -44,7 +44,6 @@ router.get('/products', (req, res, next) => {
 		.catch(next)
 })
 
-<<<<<<< HEAD
 //INDEX OF PRODUCT
 //GET /products/collectibles
 router.get('/products/collectibles', (req,res,next) => {
@@ -58,7 +57,6 @@ router.get('/products/collectibles', (req,res,next) => {
 
 // SHOW
 // GET /examples/5a7db6c74d55bc51bdf39793
-=======
 // INDEX electronics products -> GET /products/electronics
 router.get('/products/electronics', (req, res, next) => {
 	Product.find({ category: 'electronics' })
@@ -80,7 +78,6 @@ router.get('/products/clothing', (req, res, next) => {
 })
 
 // SHOW -> GET /products/5a7db6c74d55bc51bdf39793
->>>>>>> main
 router.get('/products/:id', (req, res, next) => {
 	// req.params.id will be set based on the `:id` in the route
 	Product.findById(req.params.id)
@@ -92,12 +89,7 @@ router.get('/products/:id', (req, res, next) => {
 })
 
 
-<<<<<<< HEAD
-// CREATE
-// POST /products
-=======
 // CREATE -> POST /products
->>>>>>> main
 router.post('/products', requireToken, (req, res, next) => {
 	// set owner of new example to be current user
 	req.body.product.owner = req.user.id
@@ -135,7 +127,6 @@ router.patch('/products/:id', requireToken, removeBlanks, (req, res, next) => {
 		.catch(next)
 })
 
-<<<<<<< HEAD
 // MINE
 // GET /products/mine
 router.get('/products/mine', requireToken, (req, res, next) => {
@@ -156,9 +147,7 @@ router.get('/products/mine', requireToken, (req, res, next) => {
 
 // DESTROY
 // DELETE /products/
-=======
 // DESTROY -> DELETE /products/
->>>>>>> main
 router.delete('/products/:id', requireToken, (req, res, next) => {
 	Product.findById(req.params.id)
 		.then(handle404)
