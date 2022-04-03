@@ -4,7 +4,6 @@ const Product = require('./product')
 const db = require('../../config/db')
 
 const startProducts = [
-    { name: 'Mac-book Pro 2020', price: 1099, description: 'Brand new 2020 Mac book', category: 'electronics', stock: 5,owner:"6248868eda080e5573e2f7e7" },
     { name: 'Random NFT Card', price: 500, description: 'Buy a random NFT card', category: 'collectibles', stock:20, owner:"6248868eda080e5573e2f7e7"},
     { name: 'Levi\'s Blue Jeans', price: 50, description: 'Blue jeans for everyday styling', category: 'clothing',stock:13, owner:"6248868eda080e5573e2f7e7"},
     { name: 'Levi\'s Black Jeans', price: 50, description: 'Black jeans for everyday styling', category: 'clothing',stock:12, owner:"6248868eda080e5573e2f7e7"},

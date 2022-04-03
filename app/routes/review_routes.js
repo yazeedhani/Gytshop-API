@@ -38,6 +38,31 @@ router.post('/reviews/:productId', (req, res, next) => {
 
 
 
+// DELETE -> delete a review
+// DELETE /reviews/<productId>/<reviewId>
+router.delete('/reviews/:productId/:reviewId', requireToken, (req, res, next) => {
+    // saving both ids to variables for easy ref later
+    const reviewId = req.params.reviewId
+    const productId = req.params.productId
+    // find the product in the db
+    Product.findById(productId)
+        // if product not found throw 404
+        .then(handle404)
+        .then(product => {
+            // get the specific subdocument by its id
+            const theReview = product.reviews.id(reviewId)
+            // require that the deleter is the owner of the product
+            requireOwnership(req, product)
+            // call remove on the review we got on the line above requireOwnership
+            theReview.remove()
+
+            // return the saved product
+            return product.save()
+        })
+        // send 204 no content
+        .then(() => res.sendStatus(204))
+        .catch(next)
+})
 
 
 module.exports = router
