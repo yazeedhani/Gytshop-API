@@ -1,5 +1,7 @@
 const mongoose = require('mongoose')
 
+const reviewSchema = require('./review')
+
 const productSchema = new mongoose.Schema(
 	{
 		name: {
@@ -27,7 +29,7 @@ const productSchema = new mongoose.Schema(
 			ref: 'User',
 			required: true,
 		},
-		// reviews: [reviewSchema]
+		reviews: [reviewSchema]
 	},
 	{
 		timestamps: true,
