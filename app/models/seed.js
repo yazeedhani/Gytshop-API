@@ -12,8 +12,8 @@ const startProducts = [
     { name: 'Sony 50 inch Wide-Screen T.V', price: 399, description: 'Brand new Sony HD TV', category: 'electronics', stock: 3,owner:"6248868eda080e5573e2f7e7" },
     { name: 'Beach painting', price: 50, description: 'Art Work painted by Bob Ross', category: 'collectibles',stock:2, owner:"6248868eda080e5573e2f7e7"},
     { name: 'iPhone 10', price: 999, description: 'Apple iPhone 10', category: 'electronics',stock:4, owner:"6248868eda080e5573e2f7e7"},
-    { name: 'Bored Ape Yacht Club', price: 15000, description: 'Rare Bored Ape NFT', category: 'collectibles',stock:1, owner:"6248868eda080e5573e2f7e7"}
-
+    { name: 'Bored Ape Yacht Club', price: 15000, description: 'Rare Bored Ape NFT', category: 'collectibles',stock:1, owner:"6248868eda080e5573e2f7e7"},
+    { name: 'Mac-book Pro 2020', price: 1099, description: 'Brand new 2020 Mac book', category: 'electronics', stock: 5,owner:"6248868eda080e5573e2f7e7" },
 ]
 
 // first we connect to the db via mongoose
