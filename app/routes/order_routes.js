@@ -28,21 +28,47 @@ const requireToken = passport.authenticate('bearer', { session: false })
 const router = express.Router()
 
 /******************** ROUTES *******************/
+    //Routes needed
+    //Index route for showing items in cart
+    //Update route for updating items in cart
+    //Delete route for deleting items in cart
 
-// CREATE order
-router.post('/orders/', requireToken, (req, res, next) => {
-    // We brought in requireToken, so we can have access to req.user
-    // req.user is coming from requireToken where it is set up
-    req.body.pet.owner = req.user.id
+    //once a user clicks on the cart tab, they should be brought to their own cart
+    //cart should display items that user added by themselves
+        //when a user clicks on the add to cart button via show page, 
+        //the productId will need to be pushed into the productsOrdered schema 
+        //which is an empty array 
+        //each user has a specific productOrdered 
 
-    Pet.create(req.body.pet)
-        .then( pet => {
-            // send a successful response like this
-            res.status(201).json({ pet: pet.toObject() })
+//index Route for showing items in our cart
+router.get('/orders', requireToken, (req,res,next) => {
+    req.body.product.owner = req.user.id
+    User.findById(userId)
+        //this will populate items in the users current cart
+        .populate('productsOrdered')
+        //once populated, if there are items in the users cart we will load them
+        .then(products => {
+            return products.map(product=>product.toObject())
         })
-        // if an error occurs, pass it to the error handler
+        .then(products=> res.status(200).json({products:products}))
         .catch(next)
 })
+
+
+// CREATE order
+// router.post('/orders/', requireToken, (req, res, next) => {
+//     // We brought in requireToken, so we can have access to req.user
+//     // req.user is coming from requireToken where it is set up
+//     req.body.product.owner = req.user.id
+
+//     Product.create(req.body.product)
+//         .then( product => {
+//             // send a successful response like this
+//             res.status(201).json({ product: product.toObject() })
+//         })
+//         // if an error occurs, pass it to the error handler
+//         .catch(next)
+// })
 
 // First, click on product to enter SHOW page
 // Create a form in the show page of the product 
