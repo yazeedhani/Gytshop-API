@@ -49,7 +49,7 @@ router.get('/products', (req, res, next) => {
 router.get('/products/collectibles', (req,res,next) => {
 	Product.find({category:'collectibles'})
 		.then((collectibles)=> {
-			return collectibles.filter((collectibles) => collectibles.toObject())
+			return collectibles.map((collectibles) => collectibles.toObject())
 		})	
 		.then((collectibles) => res.status(200).json( {collectibles: collectibles}))
 		.catch(next)
