@@ -45,6 +45,19 @@ router.get('/products', (req, res, next) => {
 		.catch(next)
 })
 
+// MINE -> GET /products/mine
+router.get('/products/mine', requireToken, (req, res, next) => {
+	Product.find({owner:req.user.id})
+	.populate('owner')
+	.then(products => {
+		return products.map(product => product.toObject())
+	})
+	// respond with status 200 and JSON of the products
+	.then((products) => res.status(200).json({ products: products }))
+	// if an error occurs, pass it to the handler
+	.catch(next)
+})
+
 // INDEX collectibles products -> GET /products/collectibles
 router.get('/products/collectibles', (req,res,next) => {
 	Product.find({category:'collectibles'})
