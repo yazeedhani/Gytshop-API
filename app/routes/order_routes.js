@@ -42,15 +42,15 @@ const router = express.Router()
 
 //index Route for showing items in our cart
 router.get('/orders', requireToken, (req,res,next) => {
-    req.body.product.owner = req.user.id
-    User.findById(userId)
+    req.body.order.owner = req.user.id
+    Order.find({owner: req.user.id})
         //this will populate items in the users current cart
         .populate('productsOrdered')
         //once populated, if there are items in the users cart we will load them
-        .then(products => {
-            return products.map(product=>product.toObject())
+        .then(orders => {
+            return orders.productsOrdered.map(orders => order.toObject())
         })
-        .then(products=> res.status(200).json({products:products}))
+        .then(orders=> res.status(200).json({orders:orders}))
         .catch(next)
 })
 
