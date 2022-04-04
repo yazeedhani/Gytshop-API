@@ -42,8 +42,6 @@ const router = express.Router()
     //which is an empty array 
     //each user has a specific productsOrdered 
 
-<<<<<<< HEAD
-=======
 //index Route for showing items in our cart
 router.get('/orders', requireToken, (req,res,next) => {
 
@@ -51,29 +49,7 @@ router.get('/orders', requireToken, (req,res,next) => {
     console.log('this is req.user', req.user._id)
     req.body.owner = req.user._id
     
-<<<<<<< HEAD
-    // Order.find()
-    //     //this will populate items in the users current cart
-    //     .populate('productsOrdered')
-    //     //once populated, if there are items in the users cart we will load them
-    //     // `orders` will be an array of Mongoose documents
-    //     // .populate('productsOrdered')
-    //     // we want to convert each one to a POJO, so we use `.map` to
-    //     // apply `.toObject` to each one
-    //     .then(orders => {
-    //         return orders.productsOrdered.map(order => order.toObject())
-    //     })
-    //     .then(orders=> res.status(200).json({orders:orders}))
-    //     .catch(next)
-})
-
->>>>>>> upstream/main
-//Show Route for showing items in individuals cart
-router.get('/orders/:id', requireToken, (req,res,next) => {
-    Order.findById(req.params.id)
-=======
     Order.find()
->>>>>>> upstream/main
         //this will populate items in the users current cart
         .populate('productsOrdered')
         //once populated, if there are items in the users cart we will load them
@@ -88,8 +64,8 @@ router.get('/orders/:id', requireToken, (req,res,next) => {
         .catch(next)
 })
 
-//Show Route for showing items in individuals cart
-router.get('/orders/:id', requireToken, (req,res,next) => {
+//INDEX Route to show the orders in the My Orders page
+router.get('/orders/:userId', requireToken, (req,res,next) => {
     Order.findById(req.params.id)
         //this will populate items in the users current cart
         .then(handle404)
@@ -98,48 +74,14 @@ router.get('/orders/:id', requireToken, (req,res,next) => {
         .catch(next)
 })
 
-// //Show Route for showing items in individuals cart
-// router.get('/orders/:id', requireToken, (req,res,next) => {
-//     Order.findById(req.params.id)
-//         //this will populate items in the users current cart
-//         .then(handle404)
-//         //if item found, it will show 
-//         .then(order=> res.status(200).json({order:order.toObject()}))
-//         .catch(next)
-// })
-
 // CREATE order
 //POST /orders
-<<<<<<< HEAD
-router.post('/orders', requireToken, (req, res, next) => {
-    req.body.product.owner = req.user.id
-
-    Order.create(req.body.cart)
-        .then((order) => {
-            // send a successful response like this
-            res.status(201).json({ order: order.toObject() })
-        })
-        // if an error occurs, pass it to the error handler
-        .catch(next)
-})
-
-router.patch('/orders/:id', requireToken, (req, res, next) => {
-    req.body.product.owner = req.user.id
-
-    Order.create(req.body.cart)
-        .then((order) => {
-            // send a successful response like this
-            res.status(201).json({ order: order.toObject() })
-        })
-        // if an error occurs, pass it to the error handler
-        .catch(next)
-=======
 router.post('/orders/:productId', requireToken, (req, res, next) => {
 
     req.body.owner = req.user.id
     // get owner ID (which is the currently logged in user ID)
     // const ownerId = req.user.id
-    // console.log('owner id: ', req.body.owner)
+    console.log('owner id: ', req.body.owner)
     const order = req.body.order
     // get product ID
     const productid = req.params.productId
@@ -215,7 +157,6 @@ router.delete('/orders/:id', requireToken, (req, res, next) => {
 router.patch('/orders', requireToken, (req, res, next) => {
     // Add productID to the productsOrdered []. (WE NEED THE PRODUCTID)
     // increment quantity filed in Order and decrement stock filed in Product
->>>>>>> upstream/main
 })
 
 // First, click on product to enter SHOW page
