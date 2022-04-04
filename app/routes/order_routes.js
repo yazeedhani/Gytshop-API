@@ -42,14 +42,15 @@ const router = express.Router()
     //which is an empty array 
     //each user has a specific productsOrdered 
 
-//index Route for showing items in our cart
-router.get('/orders', requireToken, (req,res,next) => {
+// INDEX -> GET /orders/624b4a97d257eac6012ac1fb - will get the order of the logged in user
+router.get('/orders/:ownerId', requireToken, (req,res,next) => {
 
     // req.body.order.owner = req.user.id
     console.log('this is req.user', req.user._id)
-    req.body.owner = req.user._id
+    // req.body.owner = req.user._id
+    const ownerid = req.params.ownerId
     
-    Order.find()
+    Order.findOne({owner: ownerid})
         //this will populate items in the users current cart
         .populate('productsOrdered')
         //once populated, if there are items in the users cart we will load them
@@ -57,10 +58,14 @@ router.get('/orders', requireToken, (req,res,next) => {
         // .populate('productsOrdered')
         // we want to convert each one to a POJO, so we use `.map` to
         // apply `.toObject` to each one
-        .then(orders => {
-            return orders.productsOrdered.map(order => order.toObject())
+        // .then(orders => {
+        //     return orders.productsOrdered.map(order => order.toObject())
+        // })
+        .then( order => {
+            const productsInCart = order.productsOrdered
+            return productsInCart
         })
-        .then(orders=> res.status(200).json({orders:orders}))
+        .then(orders => res.status(200).json({orders:orders}))
         .catch(next)
 })
 
@@ -74,8 +79,9 @@ router.get('/orders/:userId', requireToken, (req,res,next) => {
         .catch(next)
 })
 
-// CREATE order
-//POST /orders
+
+// CREATE -> POST /orders/62489ab3463e04b5a380271e - this will push a product to the 
+// productsOrdered array assuming there is an existing order cart
 router.post('/orders/:productId', requireToken, (req, res, next) => {
 
     req.body.owner = req.user.id
