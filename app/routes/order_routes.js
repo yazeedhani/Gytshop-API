@@ -35,10 +35,10 @@ const router = express.Router()
 
     //once a user clicks on the cart tab, they should be brought to their own cart
     //cart should display items that user added by themselves
-        //when a user clicks on the add to cart button via show page, 
-        //the productId will need to be pushed into the productsOrdered schema 
-        //which is an empty array 
-        //each user has a specific productOrdered 
+    //when a user clicks on the add to cart button via show page, 
+    //the productId will need to be pushed into the productsOrdered schema 
+    //which is an empty array 
+    //each user has a specific productsOrdered 
 
 //index Route for showing items in our cart
 router.get('/orders', requireToken, (req,res,next) => {
@@ -69,6 +69,12 @@ router.get('/orders', requireToken, (req,res,next) => {
 //         // if an error occurs, pass it to the error handler
 //         .catch(next)
 // })
+
+// // UPDATE -> PATCH /orders/5a7db6c74d55bc51bdf39793
+router.patch('/orders', requireToken, (req, res, next) => {
+    // Add productID to the productsOrdered []. (WE NEED THE PRODUCTID)
+    // increment quantity filed in Order and decrement stock filed in Product
+})
 
 // First, click on product to enter SHOW page
 // Create a form in the show page of the product 
