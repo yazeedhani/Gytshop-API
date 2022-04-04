@@ -7,10 +7,14 @@ const orderSchema = new mongoose.Schema(
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User'
         },
-        orderDate: {
-            type: Date,
-            required: true
-        },
+        // quantity: {
+        //     type: Number,
+        //     default: 0
+        // },
+        // orderDate: {
+        //     type: Date,
+        //     required: true
+        // },
         shippingAddress: {
             type: String,
             required: true
