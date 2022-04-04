@@ -40,35 +40,42 @@ const router = express.Router()
         //which is an empty array 
         //each user has a specific productOrdered 
 
-//index Route for showing items in our cart
-router.get('/orders', requireToken, (req,res,next) => {
-    req.body.product.owner = req.user.id
-    User.findById(userId)
+//Show Route for showing items in individuals cart
+router.get('/orders/:id', requireToken, (req,res,next) => {
+    Order.findById(req.params.id)
         //this will populate items in the users current cart
-        .populate('productsOrdered')
-        //once populated, if there are items in the users cart we will load them
-        .then(products => {
-            return products.map(product=>product.toObject())
-        })
-        .then(products=> res.status(200).json({products:products}))
+        .then(handle404)
+        //if item found, it will show 
+        .then(order=> res.status(200).json({order:order.toObject()}))
         .catch(next)
 })
 
 
 // CREATE order
-// router.post('/orders/', requireToken, (req, res, next) => {
-//     // We brought in requireToken, so we can have access to req.user
-//     // req.user is coming from requireToken where it is set up
-//     req.body.product.owner = req.user.id
+//POST /orders
+router.post('/orders', requireToken, (req, res, next) => {
+    req.body.product.owner = req.user.id
 
-//     Product.create(req.body.product)
-//         .then( product => {
-//             // send a successful response like this
-//             res.status(201).json({ product: product.toObject() })
-//         })
-//         // if an error occurs, pass it to the error handler
-//         .catch(next)
-// })
+    Order.create(req.body.cart)
+        .then((order) => {
+            // send a successful response like this
+            res.status(201).json({ order: order.toObject() })
+        })
+        // if an error occurs, pass it to the error handler
+        .catch(next)
+})
+
+router.patch('/orders/:id', requireToken, (req, res, next) => {
+    req.body.product.owner = req.user.id
+
+    Order.create(req.body.cart)
+        .then((order) => {
+            // send a successful response like this
+            res.status(201).json({ order: order.toObject() })
+        })
+        // if an error occurs, pass it to the error handler
+        .catch(next)
+})
 
 // First, click on product to enter SHOW page
 // Create a form in the show page of the product 
