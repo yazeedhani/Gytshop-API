@@ -3,7 +3,7 @@ const express = require('express')
 // Passport docs: http://www.passportjs.org/docs/
 const passport = require('passport')
 
-// pull in Mongoose model for product
+// pull in Mongoose model for order
 const Order = require('../models/order')
 
 // this is a collection of methods that help us detect situations when we need
@@ -40,35 +40,68 @@ const router = express.Router()
         //which is an empty array 
         //each user has a specific productOrdered 
 
-//index Route for showing items in our cart
-router.get('/orders', requireToken, (req,res,next) => {
-    req.body.product.owner = req.user.id
-    User.findById(userId)
+//Show Route for showing items in individuals cart
+router.get('/orders/:id', requireToken, (req,res,next) => {
+    Order.findById(req.params.id)
         //this will populate items in the users current cart
-        .populate('productsOrdered')
-        //once populated, if there are items in the users cart we will load them
-        .then(products => {
-            return products.map(product=>product.toObject())
-        })
-        .then(products=> res.status(200).json({products:products}))
+        .then(handle404)
+        //if item found, it will show 
+        .then(order=> res.status(200).json({order:order.toObject()}))
         .catch(next)
 })
 
-
 // CREATE order
-// router.post('/orders/', requireToken, (req, res, next) => {
-//     // We brought in requireToken, so we can have access to req.user
-//     // req.user is coming from requireToken where it is set up
-//     req.body.product.owner = req.user.id
+//POST /orders
+router.post('/orders', requireToken, (req, res, next) => {
+    req.body.order.owner = req.user.id
 
-//     Product.create(req.body.product)
-//         .then( product => {
-//             // send a successful response like this
-//             res.status(201).json({ product: product.toObject() })
-//         })
-//         // if an error occurs, pass it to the error handler
-//         .catch(next)
-// })
+    Order.create(req.body.cart)
+        .then((order) => {
+            // send a successful response like this
+            res.status(201).json({ order: order.toObject() })
+        })
+        // if an error occurs, pass it to the error handler
+        .catch(next)
+})
+
+// UPDATE -> PATCH /order/5a7db6c74d55bc51bdf39793
+router.patch('/orders/:id', requireToken, removeBlanks, (req, res, next) => {
+	// if the client attempts to change the `owner` property by including a new
+	// owner, prevent that by deleting that key/value pair
+	delete req.body.order.owner
+
+	Order.findById(req.params.id)
+		.then(handle404)
+		.then((order) => {
+			// pass the `req` object and the Mongoose record to `requireOwnership`
+			// it will throw an error if the current user isn't the owner
+			requireOwnership(req, order)
+
+			// pass the result of Mongoose's `.update` to the next `.then`
+			return order.updateOne(req.body.order)
+		})
+		// if that succeeded, return 204 and no JSON
+		.then(() => res.sendStatus(204))
+		// if an error occurs, pass it to the handler
+		.catch(next)
+})
+
+// DESTROY -> DELETE /order/
+router.delete('/orders/:id', requireToken, (req, res, next) => {
+	Order.findById(req.params.id)
+		.then(handle404)
+		.then((order) => {
+			// Error if current user does not own the order
+			requireOwnership(req, order)
+			// Delete the order ONLY IF the above didn't error
+			order.deleteOne()
+		})
+		// send back 204 and no content if the deletion succeeded
+		.then(() => res.sendStatus(204))
+		// if an error occurs, pass it to the handler
+		.catch(next)
+})
+
 
 // First, click on product to enter SHOW page
 // Create a form in the show page of the product 
