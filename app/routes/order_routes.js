@@ -51,6 +51,7 @@ router.get('/orders', requireToken, (req,res,next) => {
     console.log('this is req.user', req.user._id)
     req.body.owner = req.user._id
     
+<<<<<<< HEAD
     // Order.find()
     //     //this will populate items in the users current cart
     //     .populate('productsOrdered')
@@ -70,10 +71,20 @@ router.get('/orders', requireToken, (req,res,next) => {
 //Show Route for showing items in individuals cart
 router.get('/orders/:id', requireToken, (req,res,next) => {
     Order.findById(req.params.id)
+=======
+    Order.find()
+>>>>>>> upstream/main
         //this will populate items in the users current cart
-        .then(handle404)
-        //if item found, it will show 
-        .then(order=> res.status(200).json({order:order.toObject()}))
+        .populate('productsOrdered')
+        //once populated, if there are items in the users cart we will load them
+        // `orders` will be an array of Mongoose documents
+        // .populate('productsOrdered')
+        // we want to convert each one to a POJO, so we use `.map` to
+        // apply `.toObject` to each one
+        .then(orders => {
+            return orders.productsOrdered.map(order => order.toObject())
+        })
+        .then(orders=> res.status(200).json({orders:orders}))
         .catch(next)
 })
 
@@ -86,6 +97,16 @@ router.get('/orders/:id', requireToken, (req,res,next) => {
         .then(order=> res.status(200).json({order:order.toObject()}))
         .catch(next)
 })
+
+// //Show Route for showing items in individuals cart
+// router.get('/orders/:id', requireToken, (req,res,next) => {
+//     Order.findById(req.params.id)
+//         //this will populate items in the users current cart
+//         .then(handle404)
+//         //if item found, it will show 
+//         .then(order=> res.status(200).json({order:order.toObject()}))
+//         .catch(next)
+// })
 
 // CREATE order
 //POST /orders
@@ -115,40 +136,41 @@ router.patch('/orders/:id', requireToken, (req, res, next) => {
 =======
 router.post('/orders/:productId', requireToken, (req, res, next) => {
 
-    // req.body.order.owner = req.user.id
-    req.body.owner = req.user._id
-    const ownerId = req.body.owner
-    console.log('owner id: ', ownerId)
+    req.body.owner = req.user.id
+    // get owner ID (which is the currently logged in user ID)
+    // const ownerId = req.user.id
+    // console.log('owner id: ', req.body.owner)
     const order = req.body.order
+    // get product ID
     const productid = req.params.productId
-    Order.find({owner: ownerId})
+
+    // Find the order that belongs to the currently logged in user
+    Order.find({owner: req.body.owner})
+        // .populate('owner')
         .then(handle404)
         .then( order => {
             console.log('this is the product', productid)
-            console.log('this is the productsOrdered', order.productsOrdered)
+            console.log('this is the order', order)
+            console.log('this is the productsOrdered', order[0].productsOrdered)
             // Push the product to the productsOrdered array
-        // Catch errors and send to the handler
+            order[0].productsOrdered.push(productid)
+            return order[0].save()
         })
+        // Then we send the pet as json
+        .then( order => res.status(201).json({ order: order }))
+        // Catch errors and send to the handler
         .catch(next)
+
+    // This adds an order manually through postman
     // Order.create(req.body.order)
-    //         .then((order) => {
-    //             // send a successful response like this
-    //             res.status(201).json({ order: order.toObject() })
-    //         })
-    //         // if an error occurs, pass it to the error handler
-    //         .catch(next)
-    // })
-
-    // req.body.order.owner = req.user.id
-
-    // Order.create(req.body.cart)
     //     .then((order) => {
     //         // send a successful response like this
     //         res.status(201).json({ order: order.toObject() })
     //     })
     //     // if an error occurs, pass it to the error handler
     //     .catch(next)
-})
+    })
+
 
 // UPDATE -> PATCH /order/5a7db6c74d55bc51bdf39793
 router.patch('/orders/:id', requireToken, removeBlanks, (req, res, next) => {
