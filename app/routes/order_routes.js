@@ -40,6 +40,31 @@ const router = express.Router()
         //which is an empty array 
         //each user has a specific productOrdered 
 
+router.get('/orders', requireToken, (req, res, next) => {
+    Order.find()
+        .then((orders) => {
+            // `orders` will be an array of Mongoose documents
+            // .populate('productsOrdered')
+            // we want to convert each one to a POJO, so we use `.map` to
+            // apply `.toObject` to each one
+            return orders.productsOrdered.map((orders) => orders.toObject())
+        })
+        // respond with status 200 and JSON of the products
+        .then( (orders) => res.status(200).json({ orders: orders }))
+        // if an error occurs, pass it to the handler
+        .catch(next)
+})
+
+//Show Route for showing items in individuals cart
+router.get('/orders/:id', requireToken, (req,res,next) => {
+    Order.findById(req.params.id)
+        //this will populate items in the users current cart
+        .then(handle404)
+        //if item found, it will show 
+        .then(order=> res.status(200).json({order:order.toObject()}))
+        .catch(next)
+})
+
 //Show Route for showing items in individuals cart
 router.get('/orders/:id', requireToken, (req,res,next) => {
     Order.findById(req.params.id)
