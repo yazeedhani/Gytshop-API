@@ -22,7 +22,7 @@ mongoose.connect(db, {
 })
     .then(() => {
         // then we remove all the products except the ones that have an owner
-        Product.deleteMany({ owner: null })
+        Product.remove({})
             .then(deletedProduct => {
                 console.log('deleted products', deletedProduct)
                 // we'll use console logs to check if it's working or if there are errors
