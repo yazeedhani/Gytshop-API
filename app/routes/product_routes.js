@@ -48,6 +48,7 @@ router.get('/products', (req, res, next) => {
 // INDEX collectibles products -> GET /products/collectibles
 router.get('/products/collectibles', (req,res,next) => {
 	Product.find({category:'collectibles'})
+		.populate('owner')
 		.then((collectibles)=> {
 			return collectibles.map((collectibles) => collectibles.toObject())
 		})	
@@ -58,6 +59,7 @@ router.get('/products/collectibles', (req,res,next) => {
 // INDEX electronics products -> GET /products/electronics
 router.get('/products/electronics', (req, res, next) => {
 	Product.find({ category: 'electronics' })
+		.populate('owner')
 		.then( electronics => {
 			return electronics.map( (electronics) => electronics.toObject())
 		})
@@ -68,6 +70,7 @@ router.get('/products/electronics', (req, res, next) => {
 // INDEX clothing products -> GET /products/clothing
 router.get('/products/clothing', (req, res, next) => {
 	Product.find({ category: 'clothing' })
+		.populate('owner')
 		.then( clothing => {
 			return clothing.map( (clothing) => clothing.toObject())
 		})
