@@ -64,8 +64,8 @@ router.get('/orders', requireToken, (req,res,next) => {
         .catch(next)
 })
 
-//Show Route for showing items in individuals cart
-router.get('/orders/:id', requireToken, (req,res,next) => {
+//INDEX Route to show the orders in the My Orders page
+router.get('/orders/:userId', requireToken, (req,res,next) => {
     Order.findById(req.params.id)
         //this will populate items in the users current cart
         .then(handle404)
@@ -74,16 +74,6 @@ router.get('/orders/:id', requireToken, (req,res,next) => {
         .catch(next)
 })
 
-// //Show Route for showing items in individuals cart
-// router.get('/orders/:id', requireToken, (req,res,next) => {
-//     Order.findById(req.params.id)
-//         //this will populate items in the users current cart
-//         .then(handle404)
-//         //if item found, it will show 
-//         .then(order=> res.status(200).json({order:order.toObject()}))
-//         .catch(next)
-// })
-
 // CREATE order
 //POST /orders
 router.post('/orders/:productId', requireToken, (req, res, next) => {
@@ -91,7 +81,7 @@ router.post('/orders/:productId', requireToken, (req, res, next) => {
     req.body.owner = req.user.id
     // get owner ID (which is the currently logged in user ID)
     // const ownerId = req.user.id
-    // console.log('owner id: ', req.body.owner)
+    console.log('owner id: ', req.body.owner)
     const order = req.body.order
     // get product ID
     const productid = req.params.productId
