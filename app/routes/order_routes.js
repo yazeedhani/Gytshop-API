@@ -19,6 +19,8 @@ const requireOwnership = customErrors.requireOwnership
 // this is middleware that will remove blank fields from `req.body`, e.g.
 // { example: { title: '', text: 'foo' } } -> { example: { text: 'foo' } }
 const removeBlanks = require('../../lib/remove_blank_fields')
+const user = require('../models/user')
+const product = require('../models/product')
 // passing this as a second argument to `router.<verb>` will make it
 // so that a token MUST be passed for that route to be available
 // it will also set `req.user`
@@ -40,19 +42,26 @@ const router = express.Router()
     //which is an empty array 
     //each user has a specific productsOrdered 
 
-router.get('/orders', requireToken, (req, res, next) => {
-    Order.find()
-        .then((orders) => {
-            // `orders` will be an array of Mongoose documents
-            // .populate('productsOrdered')
-            // we want to convert each one to a POJO, so we use `.map` to
-            // apply `.toObject` to each one
-            return orders.productsOrdered.map((orders) => orders.toObject())
-        })
-        // respond with status 200 and JSON of the products
-        .then( (orders) => res.status(200).json({ orders: orders }))
-        // if an error occurs, pass it to the handler
-        .catch(next)
+//index Route for showing items in our cart
+router.get('/orders', requireToken, (req,res,next) => {
+
+    // req.body.order.owner = req.user.id
+    console.log('this is req.user', req.user._id)
+    req.body.owner = req.user._id
+    
+    // Order.find()
+    //     //this will populate items in the users current cart
+    //     .populate('productsOrdered')
+    //     //once populated, if there are items in the users cart we will load them
+    //     // `orders` will be an array of Mongoose documents
+    //     // .populate('productsOrdered')
+    //     // we want to convert each one to a POJO, so we use `.map` to
+    //     // apply `.toObject` to each one
+    //     .then(orders => {
+    //         return orders.productsOrdered.map(order => order.toObject())
+    //     })
+    //     .then(orders=> res.status(200).json({orders:orders}))
+    //     .catch(next)
 })
 
 //Show Route for showing items in individuals cart
@@ -77,16 +86,41 @@ router.get('/orders/:id', requireToken, (req,res,next) => {
 
 // CREATE order
 //POST /orders
-router.post('/orders', requireToken, (req, res, next) => {
-    req.body.order.owner = req.user.id
+router.post('/orders/:productId', requireToken, (req, res, next) => {
 
-    Order.create(req.body.cart)
-        .then((order) => {
-            // send a successful response like this
-            res.status(201).json({ order: order.toObject() })
+    // req.body.order.owner = req.user.id
+    req.body.owner = req.user._id
+    const ownerId = req.body.owner
+    console.log('owner id: ', ownerId)
+    const order = req.body.order
+    const productid = req.params.productId
+    Order.find({owner: ownerId})
+        .then(handle404)
+        .then( order => {
+            console.log('this is the product', productid)
+            console.log('this is the productsOrdered', order.productsOrdered)
+            // Push the product to the productsOrdered array
+        // Catch errors and send to the handler
         })
-        // if an error occurs, pass it to the error handler
         .catch(next)
+    // Order.create(req.body.order)
+    //         .then((order) => {
+    //             // send a successful response like this
+    //             res.status(201).json({ order: order.toObject() })
+    //         })
+    //         // if an error occurs, pass it to the error handler
+    //         .catch(next)
+    // })
+
+    // req.body.order.owner = req.user.id
+
+    // Order.create(req.body.cart)
+    //     .then((order) => {
+    //         // send a successful response like this
+    //         res.status(201).json({ order: order.toObject() })
+    //     })
+    //     // if an error occurs, pass it to the error handler
+    //     .catch(next)
 })
 
 // UPDATE -> PATCH /order/5a7db6c74d55bc51bdf39793
