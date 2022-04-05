@@ -162,16 +162,13 @@ router.delete('/orders/:ownerId', requireToken, (req, res, next) => {
 		.then((order) => {
 			// Error if current user does not own the order
 			const productsInCart = order.productsOrdered
-
             console.log('array', productsInCart)
 			// Delete the order ONLY IF the above didn't error
             productsInCart.splice(0, productsInCart.length)
-            
             console.log('array after splice', productsInCart)
             return order.save()
 
 		})
-        
 		// send back 204 and no content if the deletion succeeded
 		.then(() => res.sendStatus(204))
 		// if an error occurs, pass it to the handler
