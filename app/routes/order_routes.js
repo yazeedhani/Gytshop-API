@@ -106,25 +106,10 @@ router.post('/orders/:productId', requireToken, (req, res, next) => {
             // order[0].quantity++
             return order[0].save()
         })
-        // .then( () => {
-        //     Product.findById(productid)
-        //         .then( product => {
-
-        //         })
-        // })
-        // Then we send the pet as json
+        // Then we send the order as json
         .then( order => res.status(201).json({ order: order }))
         // Catch errors and send to the handler
         .catch(next)
-
-    // This adds an order manually through postman
-    // Order.create(req.body.order)
-    //     .then((order) => {
-    //         // send a successful response like this
-    //         res.status(201).json({ order: order.toObject() })
-    //     })
-    //     // if an error occurs, pass it to the error handler
-    //     .catch(next)
     })
 
 
