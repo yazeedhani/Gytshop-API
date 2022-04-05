@@ -82,41 +82,41 @@ router.get('/orders/:userId', requireToken, (req,res,next) => {
 })
 
 
-// CREATE -> POST /orders/62489ab3463e04b5a380271e - this will push a product to the 
-// productsOrdered array assuming there is an existing order cart
-router.post('/orders/:productId', requireToken, (req, res, next) => {
+// // CREATE -> POST /orders/62489ab3463e04b5a380271e - this will push a product to the 
+// // productsOrdered array assuming there is an existing order cart
+// router.post('/products/:productId', requireToken, (req, res, next) => {
 
-    req.body.owner = req.user.id
-    // get owner ID (which is the currently logged in user ID)
-    // const ownerId = req.user.id
-    console.log('owner id: ', req.body.owner)
-    const order = req.body.order
-    // get product ID
-    const productid = req.params.productId
+//     req.body.owner = req.user.id
+//     // get owner ID (which is the currently logged in user ID)
+//     // const ownerId = req.user.id
+//     console.log('owner id: ', req.body.owner)
+//     const order = req.body.order
+//     // get product ID
+//     const productid = req.params.productId
 
-    // Find the order that belongs to the currently logged in user
-    Order.find({owner: req.body.owner})
-        // .populate('owner')
-        .then(handle404)
-        .then( order => {
-            console.log('this is the product', productid)
-            console.log('this is the order', order)
-            console.log('this is the productsOrdered', order[0].productsOrdered)
-            // Push the product to the productsOrdered array
-            order[0].productsOrdered.push(productid)
-            // order[0].quantity++
-            return order[0].save()
-        })
-        // .then( () => {
-        //     Product.findById(productid)
-        //         .then( product => {
+//     // Find the order that belongs to the currently logged in user
+//     Order.find({owner: req.body.owner})
+//         // .populate('owner')
+//         .then(handle404)
+//         .then( order => {
+//             console.log('this is the product', productid)
+//             console.log('this is the order', order)
+//             console.log('this is the productsOrdered', order[0].productsOrdered)
+//             // Push the product to the productsOrdered array
+//             order[0].productsOrdered.push(productid)
+//             // order[0].quantity++
+//             return order[0].save()
+//         })
+//         // .then( () => {
+//         //     Product.findById(productid)
+//         //         .then( product => {
 
-        //         })
-        // })
-        // Then we send the pet as json
-        .then( order => res.status(201).json({ order: order }))
-        // Catch errors and send to the handler
-        .catch(next)
+//         //         })
+//         // })
+//         // Then we send the pet as json
+//         .then( order => res.status(201).json({ order: order }))
+//         // Catch errors and send to the handler
+//         .catch(next)
 
     // This adds an order manually through postman
     // Order.create(req.body.order)
@@ -126,7 +126,7 @@ router.post('/orders/:productId', requireToken, (req, res, next) => {
     //     })
     //     // if an error occurs, pass it to the error handler
     //     .catch(next)
-    })
+    // })
 
 
 // UPDATE -> PATCH /order/5a7db6c74d55bc51bdf39793
