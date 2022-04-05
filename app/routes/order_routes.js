@@ -5,6 +5,7 @@ const passport = require('passport')
 
 // pull in Mongoose model for order
 const Order = require('../models/order')
+const Product = require('../models/product')
 
 // this is a collection of methods that help us detect situations when we need
 // to throw a custom error
@@ -102,8 +103,15 @@ router.post('/orders/:productId', requireToken, (req, res, next) => {
             console.log('this is the productsOrdered', order[0].productsOrdered)
             // Push the product to the productsOrdered array
             order[0].productsOrdered.push(productid)
+            // order[0].quantity++
             return order[0].save()
         })
+        // .then( () => {
+        //     Product.findById(productid)
+        //         .then( product => {
+
+        //         })
+        // })
         // Then we send the pet as json
         .then( order => res.status(201).json({ order: order }))
         // Catch errors and send to the handler
