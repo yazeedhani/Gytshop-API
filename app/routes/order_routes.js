@@ -114,37 +114,37 @@ router.post('/orders/:productId', requireToken, (req, res, next) => {
     })
 
 
-// UPDATE -> PATCH /order/5a7db6c74d55bc51bdf39793
-router.patch('/orders/:id', requireToken, removeBlanks, (req, res, next) => {
-	// if the client attempts to change the `owner` property by including a new
-	// owner, prevent that by deleting that key/value pair
-	delete req.body.order.owner
-
-	Order.findById(req.params.id)
-		.then(handle404)
-		.then((order) => {
-			// pass the `req` object and the Mongoose record to `requireOwnership`
-			// it will throw an error if the current user isn't the owner
-			requireOwnership(req, order)
-
-			// pass the result of Mongoose's `.update` to the next `.then`
-			return order.updateOne(req.body.order)
-		})
-		// if that succeeded, return 204 and no JSON
-		.then(() => res.sendStatus(204))
-		// if an error occurs, pass it to the handler
-		.catch(next)
-})
+// // UPDATE -> PATCH /order/5a7db6c74d55bc51bdf39793
+// router.patch('/orders/:productId/:orderId', requireToken, removeBlanks, (req, res, next) => {
+//     const orderId = req.params.orderId
+//     const productId = req.params.productId
+// 	Product.findById(productId)
+// 		.then(handle404)
+// 		.then(product => {
+//             const theProduct = product.order.id(orderId)
+// 			requireOwnership(req, product)
+// 			// pass the result of Mongoose's `.update` to the next `.then`
+//             theProduct.set(req.body.order)
+// 			return product.save()
+// 		})
+// 		// if that succeeded, return 204 and no JSON
+// 		.then(() => res.sendStatus(204))
+// 		// if an error occurs, pass it to the handler
+// 		.catch(next)
+// })
 
 // DESTROY -> DELETE /order/
 router.delete('/orders/:id', requireToken, (req, res, next) => {
-	Order.findById(req.params.id)
+    const orderId = req.params.orderId
+    const productId = req.params.productId
+	Product.findById(productId)
 		.then(handle404)
-		.then((order) => {
-			// Error if current user does not own the order
-			requireOwnership(req, order)
+		.then(product => {
+            const theOrder = product.order.id(orderId)
+			requireOwnership(req, product)
 			// Delete the order ONLY IF the above didn't error
-			order.deleteOne()
+            theOrder.remove()
+            return product.save()
 		})
 		// send back 204 and no content if the deletion succeeded
 		.then(() => res.sendStatus(204))
@@ -152,17 +152,6 @@ router.delete('/orders/:id', requireToken, (req, res, next) => {
 		.catch(next)
 })
 
-
-// // UPDATE -> PATCH /orders/5a7db6c74d55bc51bdf39793
-router.patch('/orders', requireToken, (req, res, next) => {
-    // Add productID to the productsOrdered []. (WE NEED THE PRODUCTID)
-    // increment quantity filed in Order and decrement stock filed in Product
-})
-
-// First, click on product to enter SHOW page
-// Create a form in the show page of the product 
-// On show page, select product amount (this should be added to the quantity field in Order)
-// Add product to cart by adding the product's ID to the cart(this has an ID) - productsOwned array
 
 /***********************************************/
 
