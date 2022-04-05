@@ -153,6 +153,20 @@ router.delete('/orders/:id', requireToken, (req, res, next) => {
 })
 
 
+<<<<<<< HEAD
+=======
+// // UPDATE -> PATCH /orders/5a7db6c74d55bc51bdf39793
+router.patch('/orders', requireToken, (req, res, next) => {
+    // Add productID to the productsOrdered []. (WE NEED THE PRODUCTID)
+    // increment quantity filed in Order and decrement stock filed in Product
+})
+
+// First, click on product to enter SHOW page
+// Create a form in the show page of the product 
+// On show page, select product amount (this should be added to the quantity field in Order)
+// Add product to cart by adding the product's ID to the cart(this has an ID) - productsOwned array
+
+>>>>>>> 7d4f430 (fixed merge issue)
 /***********************************************/
 
 module.exports = router
