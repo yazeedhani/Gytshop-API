@@ -22,6 +22,7 @@ const requireOwnership = customErrors.requireOwnership
 const removeBlanks = require('../../lib/remove_blank_fields')
 const user = require('../models/user')
 const product = require('../models/product')
+const { ObjectId, deleteMany } = require('mongodb')
 // passing this as a second argument to `router.<verb>` will make it
 // so that a token MUST be passed for that route to be available
 // it will also set `req.user`
@@ -128,47 +129,57 @@ router.post('/orders/:productId', requireToken, (req, res, next) => {
     })
 
 
-// // UPDATE -> PATCH /order/5a7db6c74d55bc51bdf39793
-// router.patch('/orders/:productId/:orderId', requireToken, removeBlanks, (req, res, next) => {
-//     const orderId = req.params.orderId
-//     const productId = req.params.productId
-// 	Product.findById(productId)
-// 		.then(handle404)
-// 		.then(product => {
-//             const theProduct = product.order.id(orderId)
-// 			requireOwnership(req, product)
-// 			// pass the result of Mongoose's `.update` to the next `.then`
-//             theProduct.set(req.body.order)
-// 			return product.save()
-// 		})
-// 		// if that succeeded, return 204 and no JSON
-// 		.then(() => res.sendStatus(204))
-// 		// if an error occurs, pass it to the handler
-// 		.catch(next)
-// })
+// UPDATE -> PATCH /order/5a7db6c74d55bc51bdf39793
+router.patch('/orders/:id', requireToken, removeBlanks, (req, res, next) => {
+	// if the client attempts to change the `owner` property by including a new
+	// owner, prevent that by deleting that key/value pair
+	delete req.body.order.owner
 
-// DESTROY -> DELETE /order/
-router.delete('/orders/:id', requireToken, (req, res, next) => {
-    const orderId = req.params.orderId
-    const productId = req.params.productId
-	Product.findById(productId)
+	Order.findById(req.params.id)
 		.then(handle404)
-		.then(product => {
-            const theOrder = product.order.id(orderId)
-			requireOwnership(req, product)
-			// Delete the order ONLY IF the above didn't error
-            theOrder.remove()
-            return product.save()
+		.then((order) => {
+			// pass the `req` object and the Mongoose record to `requireOwnership`
+			// it will throw an error if the current user isn't the owner
+			requireOwnership(req, order)
+
+			// pass the result of Mongoose's `.update` to the next `.then`
+			return order.updateOne(req.body.order)
 		})
-		// send back 204 and no content if the deletion succeeded
+		// if that succeeded, return 204 and no JSON
 		.then(() => res.sendStatus(204))
 		// if an error occurs, pass it to the handler
 		.catch(next)
 })
 
+// DESTROY -> DELETE /order/
+router.delete('/orders/:ownerId', requireToken, (req, res, next) => {
+    const ownerid = req.params.ownerId
 
-<<<<<<< HEAD
-=======
+	Order.findOne({owner: ownerid})
+        .populate('productsOrdered')
+		.then(handle404)
+        
+		.then((order) => {
+			// Error if current user does not own the order
+			const productsInCart = order.productsOrdered
+
+            console.log('array', productsInCart)
+			// Delete the order ONLY IF the above didn't error
+            productsInCart.splice(0, productsInCart.length)
+            
+            console.log('array after splice', productsInCart)
+            return order.save()
+
+		})
+        
+		// send back 204 and no content if the deletion succeeded
+		.then(() => res.sendStatus(204))
+		// if an error occurs, pass it to the handler
+		.catch(next)
+        
+})
+
+
 // // UPDATE -> PATCH /orders/5a7db6c74d55bc51bdf39793
 router.patch('/orders', requireToken, (req, res, next) => {
     // Add productID to the productsOrdered []. (WE NEED THE PRODUCTID)
@@ -180,7 +191,6 @@ router.patch('/orders', requireToken, (req, res, next) => {
 // On show page, select product amount (this should be added to the quantity field in Order)
 // Add product to cart by adding the product's ID to the cart(this has an ID) - productsOwned array
 
->>>>>>> 7d4f430 (fixed merge issue)
 /***********************************************/
 
 module.exports = router
