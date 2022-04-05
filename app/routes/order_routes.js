@@ -22,6 +22,7 @@ const requireOwnership = customErrors.requireOwnership
 const removeBlanks = require('../../lib/remove_blank_fields')
 const user = require('../models/user')
 const product = require('../models/product')
+const { ObjectId, deleteMany } = require('mongodb')
 // passing this as a second argument to `router.<verb>` will make it
 // so that a token MUST be passed for that route to be available
 // it will also set `req.user`
@@ -151,19 +152,31 @@ router.patch('/orders/:id', requireToken, removeBlanks, (req, res, next) => {
 })
 
 // DESTROY -> DELETE /order/
-router.delete('/orders/:id', requireToken, (req, res, next) => {
-	Order.findById(req.params.id)
+router.delete('/orders/:ownerId', requireToken, (req, res, next) => {
+    const ownerid = req.params.ownerId
+
+	Order.findOne({owner: ownerid})
+        .populate('productsOrdered')
 		.then(handle404)
+        
 		.then((order) => {
 			// Error if current user does not own the order
-			requireOwnership(req, order)
+			const productsInCart = order.productsOrdered
+
+            console.log('array', productsInCart)
 			// Delete the order ONLY IF the above didn't error
-			order.deleteOne()
+            productsInCart.splice(0, productsInCart.length)
+            
+            console.log('array after splice', productsInCart)
+            return order.save()
+
 		})
+        
 		// send back 204 and no content if the deletion succeeded
 		.then(() => res.sendStatus(204))
 		// if an error occurs, pass it to the handler
 		.catch(next)
+        
 })
 
 
