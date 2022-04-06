@@ -20,6 +20,7 @@ const requireOwnership = customErrors.requireOwnership
 // this is middleware that will remove blank fields from `req.body`, e.g.
 // { example: { title: '', text: 'foo' } } -> { example: { text: 'foo' } }
 const removeBlanks = require('../../lib/remove_blank_fields')
+const req = require('express/lib/request')
 // passing this as a second argument to `router.<verb>` will make it
 // so that a token MUST be passed for that route to be available
 // it will also set `req.user`
@@ -176,7 +177,7 @@ router.delete('/products/:id', requireToken, (req, res, next) => {
 })
 
 
-// CREATE -> POST /orders/62489ab3463e04b5a380271e - this will push a product to the 
+// CREATE -> POST /products/62489ab3463e04b5a380271e - this will push a product to the 
 // productsOrdered array assuming there is an existing order cart
 router.post('/products/:productId', requireToken, (req, res, next) => {
 
@@ -190,7 +191,7 @@ router.post('/products/:productId', requireToken, (req, res, next) => {
 
     // Find the order that belongs to the currently logged in user
     Order.find({owner: req.body.owner})
-        .populate('owner')
+        // .populate('owner')
         .then(handle404)
         .then( order => {
             console.log('this is the product', productid)
@@ -213,6 +214,32 @@ router.post('/products/:productId', requireToken, (req, res, next) => {
         .catch(next)
 
 	})
+
+// UPDATE - PUT /products/orderId
+// this will push the products in the cart to the checkout page
+router.put('/products/:orderId', requireToken, removeBlanks, (req, res, next) => {
+	const ownerid = req.body.order.owner
+	console.log('owner id: ', ownerid)
+
+	req.body.owner = req.user.id
+
+    const order = req.body.order
+	console.log('order', order)
+
+	// Find the order that belongs to the currently logged in user
+    Order.findOne({owner: ownerid})
+        .then(handle404)
+        .then(order => {
+			// pass the result of Mongoose's `.update` to the next `.then`
+			console.log('this is the order', order)
+			// console.log(order)
+			return order.updateOne(req.body.order, { returnDocument: 'after' })
+        })
+        // Send 201
+		.then(() => res.sendStatus(204))
+        // Catch errors and send to the handler
+        .catch(next)
+})
 
 /***********************************************/
 
