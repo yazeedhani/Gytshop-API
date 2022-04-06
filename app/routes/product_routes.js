@@ -120,7 +120,7 @@ router.post('/products', requireToken, (req, res, next) => {
 		.catch(next)
 })
 
-// UPDATE -> PATCH /products/5a7db6c74d55bc51bdf39793
+// UPDATE -> PATCH /products/5a7db6c74d55bc51bdf39793 - Removes a product created by the user in My Listings
 router.patch('/products/:id', requireToken, removeBlanks, (req, res, next) => {
 	// if the client attempts to change the `owner` property by including a new
 	// owner, prevent that by deleting that key/value pair
@@ -142,24 +142,7 @@ router.patch('/products/:id', requireToken, removeBlanks, (req, res, next) => {
 		.catch(next)
 })
 
-// // MINE -> GET /products/mine
-// router.get('/products/mine', requireToken, (req, res, next) => {
-// 	// Find the products
-// 	Product.findById()
-// 		.then((products) => {
-// 			// `products` will be an array of Mongoose documents
-// 			// we want to convert each one to a POJO, so we use `.map` to
-// 			// apply `.toObject` to each one
-// 			requireOwnership(req, products)
-// 			return products.map((products) => products.toObject())
-// 		})
-// 		// respond with status 200 and JSON of the products
-// 		.then((products) => res.status(200).json({ products: products }))
-// 		// if an error occurs, pass it to the handler
-// 		.catch(next)
-// })
-
-// DESTROY -> DELETE /products/
+// DESTROY -> DELETE /products/62489ab3463e04b5a380271e
 router.delete('/products/:id', requireToken, (req, res, next) => {
 	Product.findById(req.params.id)
 		.then(handle404)
@@ -184,7 +167,8 @@ router.post('/products/:productId', requireToken, (req, res, next) => {
     // get owner ID (which is the currently logged in user ID)
     // const ownerId = req.user.id
     console.log('owner id: ', req.body.owner)
-    const order = req.body.order
+    console.log('req.body: ', req.body)
+    // const order = req.body.order
     // get product ID
     const productid = req.params.productId
 
@@ -198,15 +182,9 @@ router.post('/products/:productId', requireToken, (req, res, next) => {
             console.log('this is the productsOrdered', order[0].productsOrdered)
             // Push the product to the productsOrdered array
             order[0].productsOrdered.push(productid)
-            // order[0].quantity++
+            order[0].quantity++
             return order[0].save()
         })
-        // .then( () => {
-        //     Product.findById(productid)
-        //         .then( product => {
-
-        //         })
-        // })
         // Then we send the pet as json
         .then( order => res.status(201).json({ order: order }))
         // Catch errors and send to the handler

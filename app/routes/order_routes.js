@@ -32,18 +32,6 @@ const requireToken = passport.authenticate('bearer', { session: false })
 const router = express.Router()
 
 /******************** ROUTES *******************/
-    //Routes needed
-    //Index route for showing items in cart
-    //Update route for updating items in cart
-    //Delete route for deleting items in cart
-
-    //once a user clicks on the cart tab, they should be brought to their own cart
-    //cart should display items that user added by themselves
-    //when a user clicks on the add to cart button via show page, 
-    //the productId will need to be pushed into the productsOrdered schema 
-    //which is an empty array 
-    //each user has a specific productsOrdered 
-
 // INDEX -> GET /orders/624b4a97d257eac6012ac1fb - will get the order of the logged in user
 router.get('/orders/:ownerId', requireToken, (req,res,next) => {
 
@@ -54,6 +42,7 @@ router.get('/orders/:ownerId', requireToken, (req,res,next) => {
     
     Order.findOne({owner: ownerid})
         //this will populate items in the users current cart
+        .populate('owner')
         .populate('productsOrdered')
         //once populated, if there are items in the users cart we will load them
         // `orders` will be an array of Mongoose documents
@@ -151,7 +140,7 @@ router.patch('/orders/:id', requireToken, removeBlanks, (req, res, next) => {
 		.catch(next)
 })
 
-// DESTROY -> DELETE /order/
+// DESTROY -> DELETE /order/5a7db6c74d55bc51bdf39793 - Removes all the product items from the cart
 router.delete('/orders/:ownerId', requireToken, (req, res, next) => {
     const ownerid = req.params.ownerId
 
@@ -178,18 +167,6 @@ router.delete('/orders/:ownerId', requireToken, (req, res, next) => {
 		.catch(next)
         
 })
-
-
-// // UPDATE -> PATCH /orders/5a7db6c74d55bc51bdf39793
-router.patch('/orders', requireToken, (req, res, next) => {
-    // Add productID to the productsOrdered []. (WE NEED THE PRODUCTID)
-    // increment quantity filed in Order and decrement stock filed in Product
-})
-
-// First, click on product to enter SHOW page
-// Create a form in the show page of the product 
-// On show page, select product amount (this should be added to the quantity field in Order)
-// Add product to cart by adding the product's ID to the cart(this has an ID) - productsOwned array
 
 /***********************************************/
 
