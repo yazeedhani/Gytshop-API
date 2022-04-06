@@ -190,7 +190,7 @@ router.post('/products/:productId', requireToken, (req, res, next) => {
 
     // Find the order that belongs to the currently logged in user
     Order.find({owner: req.body.owner})
-        // .populate('owner')
+        .populate('owner')
         .then(handle404)
         .then( order => {
             console.log('this is the product', productid)

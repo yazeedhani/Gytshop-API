@@ -36,8 +36,4 @@ const orderSchema = new mongoose.Schema(
 	}
 )
 
-// orderSchema.virtual('price').get( function() {
-    
-// })
-
 module.exports = mongoose.model('Order', orderSchema)
