@@ -151,6 +151,35 @@ router.patch('/orders/:id', requireToken, removeBlanks, (req, res, next) => {
 		.catch(next)
 })
 
+// DELETE one ITEM
+router.delete('/orders/:ownerId/:productId', requireToken, (req, res, next) => {
+    const ownerid = req.params.ownerId
+    const productid = req.params.productId
+    
+	Order.findOne({owner: ownerid})
+        .populate('productsOrdered')
+		.then(handle404)
+        
+		.then((order) => {
+			// Error if current user does not own the order
+			const productsInCart = order.productsOrdered
+            
+            console.log('array', productsInCart)
+			// Delete the order ONLY IF the above didn't error
+            productsInCart.splice(productid, 1)
+            
+            console.log('array after splice', productsInCart)
+            return order.save()
+
+		})
+        
+		// send back 204 and no content if the deletion succeeded
+		.then(() => res.sendStatus(204))
+		// if an error occurs, pass it to the handler
+		.catch(next)
+        
+})
+
 // DESTROY -> DELETE /order/
 router.delete('/orders/:ownerId', requireToken, (req, res, next) => {
     const ownerid = req.params.ownerId
@@ -162,13 +191,16 @@ router.delete('/orders/:ownerId', requireToken, (req, res, next) => {
 		.then((order) => {
 			// Error if current user does not own the order
 			const productsInCart = order.productsOrdered
+
             console.log('array', productsInCart)
 			// Delete the order ONLY IF the above didn't error
             productsInCart.splice(0, productsInCart.length)
+            
             console.log('array after splice', productsInCart)
             return order.save()
 
 		})
+        
 		// send back 204 and no content if the deletion succeeded
 		.then(() => res.sendStatus(204))
 		// if an error occurs, pass it to the handler
