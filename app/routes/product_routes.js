@@ -202,7 +202,6 @@ router.post('/products/:productId', requireToken, (req, res, next) => {
 	})
 
 // UPDATE - PUT /products/orderId
-// this will push the products in the cart to the checkout page
 router.put('/products/:orderId', requireToken, removeBlanks, (req, res, next) => {
 	const ownerid = req.body.order.owner
 	console.log('owner id: ', ownerid)
