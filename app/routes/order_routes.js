@@ -220,6 +220,7 @@ router.delete('/orders/:ownerId', requireToken, (req, res, next) => {
             return order.save()
 
 		})
+        
 		// send back 204 and no content if the deletion succeeded
 		.then(() => res.sendStatus(204))
 		// if an error occurs, pass it to the handler
