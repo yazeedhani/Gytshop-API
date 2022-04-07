@@ -186,11 +186,19 @@ router.post('/products/:productId', requireToken, (req, res, next) => {
             order[0].quantity++
             return order[0].save()
         })
+		// Decrement product stock by 1 when added to cart
+		.then( () => {
+			Product.findById(productid)
+				.then( product => {
+					product.stock--
+					return product.save()
+				})
+				.catch(next)
+		})
         // Then we send the pet as json
         .then( order => res.status(201).json({ order: order }))
         // Catch errors and send to the handler
-        .catch(next)
-
+        .catch(next)	
 	})
 
 // UPDATE - PUT /products/orderId

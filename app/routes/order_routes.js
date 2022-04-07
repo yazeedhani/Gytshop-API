@@ -153,26 +153,36 @@ router.patch('/orders/:id', requireToken, removeBlanks, (req, res, next) => {
 		.catch(next)
 })
 
-// DELETE one ITEM form car
+// DELETE one product item from cart
 router.delete('/orders/:ownerId/:productId', requireToken, (req, res, next) => {
     const ownerid = req.params.ownerId
     const productid = req.params.productId
     
+    Product.findOne({_id: req.params.productId})
+        .then( product => {
+            console.log('product: ', product)
+            console.log('product ID: ', productid)
+            console.log('owner ID: ', req.params.ownerId)
+            product.stock++
+            return product.save()
+        })
+    // Product.findByIdAndUpdate({_id: productid}, {$inc: { stock: 1 }})
+    //     .then(() => {
+    //         console.log('incremented product stock by 1')
+    //     })
+
     Order.findOne({owner: ownerid})
         .populate('productsOrdered')
         .then(handle404)
-        
         .then((order) => {
             // Error if current user does not own the order
             const productsInCart = order.productsOrdered
-            
             console.log('array', productsInCart)
             // Delete the order ONLY IF the above didn't error
             productsInCart.splice(productid, 1)
-            
             console.log('array after splice', productsInCart)
+            order.quantity--
             return order.save()
-
         })
         // yo fool
         // send back 204 and no content if the deletion succeeded
@@ -188,21 +198,27 @@ router.delete('/orders/:ownerId', requireToken, (req, res, next) => {
 
 	Order.findOne({owner: ownerid})
         .populate('productsOrdered')
-		.then(handle404)
-        
+		.then(handle404) 
 		.then((order) => {
 			// Error if current user does not own the order
 			const productsInCart = order.productsOrdered
-
+            // Increment the product stock for each product in productsInCart
+            productsInCart.forEach( product => {
+                console.log('product: ', product)
+                Product.findByIdAndUpdate({_id: product._id}, {$inc: { stock: 1 }})
+                    .then( () => {
+                        console.log('stock incremented by 1')
+                    })
+            });
             console.log('array', productsInCart)
 			// Delete the order ONLY IF the above didn't error
             productsInCart.splice(0, productsInCart.length)
-            
+            // reset the order quantity back to 0
+            order.quantity = 0
             console.log('array after splice', productsInCart)
             return order.save()
 
 		})
-        
 		// send back 204 and no content if the deletion succeeded
 		.then(() => res.sendStatus(204))
 		// if an error occurs, pass it to the handler
