@@ -70,6 +70,19 @@ router.get('/orders/:userId', requireToken, (req,res,next) => {
         .catch(next)
 })
 
+//GET Route to show the orders in confirmation page after checking out 
+router.get('/orders/:ownerId/confirmation', requireToken, (req,res,next) => {
+    const ownerid = req.params.ownerId
+    Order.findOne({owner: ownerid})
+    .populate('productsOrdered')
+    .then( order => {
+        const productsInCart = order.productsOrdered
+        return productsInCart
+    })
+    // if an error occurs, pass it to the handler
+    .then(orders => res.status(200).json({orders:orders}))
+    .catch(next)
+})
 
 // // CREATE -> POST /orders/62489ab3463e04b5a380271e - this will push a product to the 
 // // productsOrdered array assuming there is an existing order cart
