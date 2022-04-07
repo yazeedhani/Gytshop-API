@@ -5,6 +5,7 @@ const passport = require('passport')
 
 // pull in Mongoose model for product
 const Product = require('../models/product')
+const Order = require('../models/order')
 
 // this is a collection of methods that help us detect situations when we need
 // to throw a custom error
@@ -19,6 +20,7 @@ const requireOwnership = customErrors.requireOwnership
 // this is middleware that will remove blank fields from `req.body`, e.g.
 // { example: { title: '', text: 'foo' } } -> { example: { text: 'foo' } }
 const removeBlanks = require('../../lib/remove_blank_fields')
+const req = require('express/lib/request')
 // passing this as a second argument to `router.<verb>` will make it
 // so that a token MUST be passed for that route to be available
 // it will also set `req.user`
@@ -119,7 +121,7 @@ router.post('/products', requireToken, (req, res, next) => {
 		.catch(next)
 })
 
-// UPDATE -> PATCH /products/5a7db6c74d55bc51bdf39793
+// UPDATE -> PATCH /products/5a7db6c74d55bc51bdf39793 - Removes a product created by the user in My Listings
 router.patch('/products/:id', requireToken, removeBlanks, (req, res, next) => {
 	// if the client attempts to change the `owner` property by including a new
 	// owner, prevent that by deleting that key/value pair
@@ -141,24 +143,7 @@ router.patch('/products/:id', requireToken, removeBlanks, (req, res, next) => {
 		.catch(next)
 })
 
-// // MINE -> GET /products/mine
-// router.get('/products/mine', requireToken, (req, res, next) => {
-// 	// Find the products
-// 	Product.findById()
-// 		.then((products) => {
-// 			// `products` will be an array of Mongoose documents
-// 			// we want to convert each one to a POJO, so we use `.map` to
-// 			// apply `.toObject` to each one
-// 			requireOwnership(req, products)
-// 			return products.map((products) => products.toObject())
-// 		})
-// 		// respond with status 200 and JSON of the products
-// 		.then((products) => res.status(200).json({ products: products }))
-// 		// if an error occurs, pass it to the handler
-// 		.catch(next)
-// })
-
-// DESTROY -> DELETE /products/
+// DESTROY -> DELETE /products/62489ab3463e04b5a380271e
 router.delete('/products/:id', requireToken, (req, res, next) => {
 	Product.findById(req.params.id)
 		.then(handle404)
@@ -172,6 +157,87 @@ router.delete('/products/:id', requireToken, (req, res, next) => {
 		.then(() => res.sendStatus(204))
 		// if an error occurs, pass it to the handler
 		.catch(next)
+})
+
+
+// CREATE -> POST /products/62489ab3463e04b5a380271e - this will push a product to the 
+// productsOrdered array assuming there is an existing order cart
+router.post('/products/:productId', requireToken, (req, res, next) => {
+
+    req.body.owner = req.user.id
+    // get owner ID (which is the currently logged in user ID)
+    // const ownerId = req.user.id
+    console.log('owner id: ', req.body.owner)
+    console.log('req.body: ', req.body)
+    // const order = req.body.order
+    // get product ID
+    const productid = req.params.productId
+
+    // Find the order that belongs to the currently logged in user
+    Order.find({owner: req.body.owner})
+        // .populate('owner')
+        .then(handle404)
+        .then( order => {
+            console.log('this is the product', productid)
+            console.log('this is the order', order)
+            console.log('this is the productsOrdered', order[0].productsOrdered)
+            // Push the product to the productsOrdered array
+            order[0].productsOrdered.push(productid)
+            order[0].quantity++
+            return order[0].save()
+        })
+		// Decrement product stock by 1 when added to cart
+		.then( () => {
+			Product.findById(productid)
+				.then( product => {
+					product.stock--
+					return product.save()
+				})
+				.catch(next)
+		})
+        // Then we send the pet as json
+        .then( order => res.status(201).json({ order: order }))
+        // Catch errors and send to the handler
+        .catch(next)	
+	})
+
+// UPDATE - PUT /products/orderId
+router.put('/products/:orderId', requireToken, removeBlanks, (req, res, next) => {
+	const ownerid = req.body.order.owner
+	console.log('owner id: ', ownerid)
+
+	req.body.owner = req.user.id
+
+    const order = req.body.order
+	console.log('order', order)
+
+	// Find the order that belongs to the currently logged in user
+    Order.findOne({owner: ownerid})
+        .then(handle404)
+        .then(order => {
+			// pass the result of Mongoose's `.update` to the next `.then`
+			console.log('this is the order', order)
+			// console.log(order)
+			return order.updateOne(req.body.order, { returnDocument: 'after' })
+        })
+        // Send 201
+		.then(() => res.sendStatus(204))
+        // Catch errors and send to the handler
+        .catch(next)
+})
+
+// GET Route to show the orders in confirmation page after checking out 
+router.get('/orders/:ownerId/confirmation', requireToken, (req,res,next) => {
+    const ownerid = req.params.ownerId
+    Order.findOne({owner: ownerid})
+    .populate('productsOrdered')
+    .then( order => {
+        const productsInCart = order.productsOrdered
+        return productsInCart
+    })
+    // if an error occurs, pass it to the handler
+    .then(orders => res.status(200).json({orders:orders}))
+    .catch(next)
 })
 
 /***********************************************/
