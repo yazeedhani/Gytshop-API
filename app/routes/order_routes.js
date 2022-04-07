@@ -32,18 +32,6 @@ const requireToken = passport.authenticate('bearer', { session: false })
 const router = express.Router()
 
 /******************** ROUTES *******************/
-    //Routes needed
-    //Index route for showing items in cart
-    //Update route for updating items in cart
-    //Delete route for deleting items in cart
-
-    //once a user clicks on the cart tab, they should be brought to their own cart
-    //cart should display items that user added by themselves
-    //when a user clicks on the add to cart button via show page, 
-    //the productId will need to be pushed into the productsOrdered schema 
-    //which is an empty array 
-    //each user has a specific productsOrdered 
-
 // INDEX -> GET /orders/624b4a97d257eac6012ac1fb - will get the order of the logged in user
 router.get('/orders/:ownerId', requireToken, (req,res,next) => {
 
@@ -54,6 +42,7 @@ router.get('/orders/:ownerId', requireToken, (req,res,next) => {
     
     Order.findOne({owner: ownerid})
         //this will populate items in the users current cart
+        .populate('owner')
         .populate('productsOrdered')
         //once populated, if there are items in the users cart we will load them
         // `orders` will be an array of Mongoose documents
@@ -81,6 +70,19 @@ router.get('/orders/:userId', requireToken, (req,res,next) => {
         .catch(next)
 })
 
+//GET Route to show the orders in confirmation page after checking out 
+router.get('/orders/:ownerId/confirmation', requireToken, (req,res,next) => {
+    const ownerid = req.params.ownerId
+    Order.findOne({owner: ownerid})
+    .populate('productsOrdered')
+    .then( order => {
+        const productsInCart = order.productsOrdered
+        return productsInCart
+    })
+    // if an error occurs, pass it to the handler
+    .then(orders => res.status(200).json({orders:orders}))
+    .catch(next)
+})
 
 // // CREATE -> POST /orders/62489ab3463e04b5a380271e - this will push a product to the 
 // // productsOrdered array assuming there is an existing order cart
@@ -151,26 +153,69 @@ router.patch('/orders/:id', requireToken, removeBlanks, (req, res, next) => {
 		.catch(next)
 })
 
-// DESTROY -> DELETE /order/
+// DELETE one product item from cart
+router.delete('/orders/:ownerId/:productId', requireToken, (req, res, next) => {
+    const ownerid = req.params.ownerId
+    const productid = req.params.productId
+    
+    Product.findOne({_id: req.params.productId})
+        .then( product => {
+            console.log('product: ', product)
+            console.log('product ID: ', productid)
+            console.log('owner ID: ', req.params.ownerId)
+            product.stock++
+            return product.save()
+        })
+        
+    // Product.findByIdAndUpdate({_id: productid}, {$inc: { stock: 1 }})
+    //     .then(() => {
+    //         console.log('incremented product stock by 1')
+    //     })
+
+    Order.findOne({owner: ownerid})
+        .populate('productsOrdered')
+        .then(handle404)
+        .then((order) => {
+            // Error if current user does not own the order
+            const productsInCart = order.productsOrdered
+            console.log('array', productsInCart)
+            // Delete the order ONLY IF the above didn't error
+            productsInCart.splice(productid, 1)
+            console.log('array after splice', productsInCart)
+            order.quantity--
+            return order.save()
+        })
+        // yo fool
+        // send back 204 and no content if the deletion succeeded
+        .then(() => res.sendStatus(204))
+        // if an error occurs, pass it to the handler
+        .catch(next)
+        
+})
+
+// DESTROY -> DELETE /order/5a7db6c74d55bc51bdf39793 - Removes all the product items from the cart
 router.delete('/orders/:ownerId', requireToken, (req, res, next) => {
     const ownerid = req.params.ownerId
-    req.body.owner = req.user.id
-    console.log('owner id: ', req.body.owner)
-    const order = req.body.order
-    console.log('this is the order', order)
 
 	Order.findOne({owner: ownerid})
         .populate('productsOrdered')
-		.then(handle404)
-        
+		.then(handle404) 
 		.then((order) => {
 			// Error if current user does not own the order
 			const productsInCart = order.productsOrdered
-
+            // Increment the product stock for each product in productsInCart
+            productsInCart.forEach( product => {
+                console.log('product: ', product)
+                Product.findByIdAndUpdate({_id: product._id}, {$inc: { stock: 1 }})
+                    .then( () => {
+                        console.log('stock incremented by 1')
+                    })
+            });
             console.log('array', productsInCart)
 			// Delete the order ONLY IF the above didn't error
             productsInCart.splice(0, productsInCart.length)
-            
+            // reset the order quantity back to 0
+            order.quantity = 0
             console.log('array after splice', productsInCart)
             return order.save()
 
@@ -181,32 +226,6 @@ router.delete('/orders/:ownerId', requireToken, (req, res, next) => {
 		// if an error occurs, pass it to the handler
 		.catch(next)
         
-})
-
-
-// // UPDATE -> PATCH /orders/5a7db6c74d55bc51bdf39793
-router.patch('/orders', requireToken, (req, res, next) => {
-    // Add productID to the productsOrdered []. (WE NEED THE PRODUCTID)
-    // increment quantity filed in Order and decrement stock filed in Product
-})
-
-// First, click on product to enter SHOW page
-// Create a form in the show page of the product 
-// On show page, select product amount (this should be added to the quantity field in Order)
-// Add product to cart by adding the product's ID to the cart(this has an ID) - productsOwned array
-
-//GET Route to show the orders in confirmation page after checking out 
-router.get('/orders/:ownerId/confirmation', requireToken, (req,res,next) => {
-    const ownerid = req.params.ownerId
-    Order.findOne({owner: ownerid})
-    .populate('productsOrdered')
-    .then( order => {
-        const productsInCart = order.productsOrdered
-        return productsInCart
-    })
-    // if an error occurs, pass it to the handler
-    .then(orders => res.status(200).json({orders:orders}))
-    .catch(next)
 })
 
 /***********************************************/
