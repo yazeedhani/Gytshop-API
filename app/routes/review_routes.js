@@ -48,7 +48,6 @@ router.patch('/reviews/:productId/:reviewId', requireToken, removeBlanks, (req, 
         .then(product => {
             const theReview = product.reviews.id(reviewId)
             console.log('this is the original review', theReview)
-            requireOwnership(req, product)
 
             theReview.set(req.body.review)
 
@@ -61,7 +60,7 @@ router.patch('/reviews/:productId/:reviewId', requireToken, removeBlanks, (req, 
 
 // DELETE -> delete a review
 // DELETE /reviews/<productId>/<reviewId>
-router.delete('/reviews/:productId/:reviewId', requireToken, (req, res, next) => {
+router.delete('/reviews/:productId/:reviewId', requireToken,(req, res, next) => {
     // saving both ids to variables for easy ref later
     const reviewId = req.params.reviewId
     const productId = req.params.productId
@@ -72,8 +71,7 @@ router.delete('/reviews/:productId/:reviewId', requireToken, (req, res, next) =>
         .then(product => {
             // get the specific subdocument by its id
             const theReview = product.reviews.id(reviewId)
-            // require that the deleter is the owner of the product
-            requireOwnership(req, product)
+
             // call remove on the review we got on the line above requireOwnership
             theReview.remove()
 
