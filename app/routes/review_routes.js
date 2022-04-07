@@ -37,26 +37,26 @@ router.post('/reviews/:productId', (req, res, next) => {
 })
 
 
-// UPDATE
-// PATCH /reviews/<product>/<review_id>
-router.patch('/reviews/:productId/:reviewId', requireToken, removeBlanks, (req, res, next) => {
-    const reviewId = req.params.reviewId
-    const productId = req.params.productId
+// // UPDATE
+// // PATCH /reviews/<product>/<review_id>
+// router.patch('/reviews/:productId/:reviewId', requireToken, removeBlanks, (req, res, next) => {
+//     const reviewId = req.params.reviewId
+//     const productId = req.params.productId
 
-    Product.findById(productId)
-        .then(handle404)
-        .then(product => {
-            const theReview = product.reviews.id(reviewId)
-            console.log('this is the original review', theReview)
+//     Product.findById(productId)
+//         .then(handle404)
+//         .then(product => {
+//             const theReview = product.reviews.id(reviewId)
+//             console.log('this is the original review', theReview)
+//             requireOwnership(req, product)
+//             theReview.set(req.body.review)
 
-            theReview.set(req.body.review)
+//             return product.save()
+//         })
+//         .then(() => res.sendStatus(204))
+//         .catch(next)
 
-            return product.save()
-        })
-        .then(() => res.sendStatus(204))
-        .catch(next)
-
-})
+// })
 
 // DELETE -> delete a review
 // DELETE /reviews/<productId>/<reviewId>
@@ -66,12 +66,13 @@ router.delete('/reviews/:productId/:reviewId', requireToken,(req, res, next) => 
     const productId = req.params.productId
     // find the product in the db
     Product.findById(productId)
+
         // if product not found throw 404
         .then(handle404)
         .then(product => {
             // get the specific subdocument by its id
             const theReview = product.reviews.id(reviewId)
-
+            requireOwnership(req, product)
             // call remove on the review we got on the line above requireOwnership
             theReview.remove()
 

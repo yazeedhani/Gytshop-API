@@ -60,6 +60,7 @@ router.get('/products/mine', requireToken, (req, res, next) => {
 	.catch(next)
 })
 
+
 // INDEX collectibles products -> GET /products/collectibles
 router.get('/products/collectibles', (req,res,next) => {
 	Product.find({category:'collectibles'})
@@ -226,7 +227,7 @@ router.put('/products/:orderId', requireToken, removeBlanks, (req, res, next) =>
         .catch(next)
 })
 
-// GET Route to show the orders in confirmation page after checking out 
+// GET Route to show the orders in confirmation page after checking out 	
 router.get('/orders/:ownerId/payment', requireToken, (req,res,next) => {
     const ownerid = req.params.ownerId
     Order.findOne({owner: ownerid})
