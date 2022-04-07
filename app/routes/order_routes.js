@@ -166,6 +166,7 @@ router.delete('/orders/:ownerId/:productId', requireToken, (req, res, next) => {
             product.stock++
             return product.save()
         })
+        
     // Product.findByIdAndUpdate({_id: productid}, {$inc: { stock: 1 }})
     //     .then(() => {
     //         console.log('incremented product stock by 1')
