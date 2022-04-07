@@ -193,9 +193,6 @@ router.post('/products/:productId', requireToken, (req, res, next) => {
 					product.stock--
 					return product.save()
 				})
-				.then( () => {
-					res.redirect(`/products/${productid}`)
-				})
 				.catch(next)
 		})
         // Then we send the pet as json
