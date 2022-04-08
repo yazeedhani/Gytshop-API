@@ -60,6 +60,7 @@ router.get('/products/mine', requireToken, (req, res, next) => {
 	.catch(next)
 })
 
+
 // INDEX collectibles products -> GET /products/collectibles
 router.get('/products/collectibles', (req,res,next) => {
 	Product.find({category:'collectibles'})
@@ -207,6 +208,34 @@ router.patch('/products/:orderId', requireToken, removeBlanks, (req, res, next) 
 		.then(() => res.sendStatus(204))
         // Catch errors and send to the handler
         .catch(next)
+})
+
+// GET Route to show the orders in confirmation page after checking out 	
+router.get('/orders/:ownerId/payment', requireToken, (req,res,next) => {
+    const ownerid = req.params.ownerId
+    Order.findOne({owner: ownerid})
+    .populate('productsOrdered')
+    .then( order => {
+        const productsInCart = order.productsOrdered
+        return productsInCart
+    })
+    // if an error occurs, pass it to the handler
+    .then(orders => res.status(200).json({orders:orders}))
+    .catch(next)
+})
+
+// GET Route to show the orders in confirmation page after checking out 
+router.get('/orders/:ownerId/confirmation', requireToken, (req,res,next) => {
+    const ownerid = req.params.ownerId
+    Order.findOne({owner: ownerid})
+    .populate('productsOrdered')
+    .then( order => {
+        const productsInCart = order.productsOrdered
+        return productsInCart
+    })
+    // if an error occurs, pass it to the handler
+    .then(orders => res.status(200).json({orders:orders}))
+    .catch(next)
 })
 
 /***********************************************/
