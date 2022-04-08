@@ -210,7 +210,6 @@ router.patch('/products/:orderId', requireToken, removeBlanks, (req, res, next) 
         .catch(next)
 })
 
-<<<<<<< HEAD
 // GET Route to show the orders in confirmation page after checking out 	
 router.get('/orders/:ownerId/payment', requireToken, (req,res,next) => {
     const ownerid = req.params.ownerId
@@ -239,8 +238,6 @@ router.get('/orders/:ownerId/confirmation', requireToken, (req,res,next) => {
     .catch(next)
 })
 
-=======
->>>>>>> backup-4
 /***********************************************/
 
 module.exports = router
