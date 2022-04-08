@@ -122,28 +122,6 @@ router.post('/products', requireToken, (req, res, next) => {
 		.catch(next)
 })
 
-// UPDATE -> PATCH /products/5a7db6c74d55bc51bdf39793 - Removes a product created by the user in My Listings
-router.patch('/products/:id', requireToken, removeBlanks, (req, res, next) => {
-	// if the client attempts to change the `owner` property by including a new
-	// owner, prevent that by deleting that key/value pair
-	delete req.body.product.owner
-
-	Product.findById(req.params.id)
-		.then(handle404)
-		.then((product) => {
-			// pass the `req` object and the Mongoose record to `requireOwnership`
-			// it will throw an error if the current user isn't the owner
-			requireOwnership(req, product)
-
-			// pass the result of Mongoose's `.update` to the next `.then`
-			return product.updateOne(req.body.product)
-		})
-		// if that succeeded, return 204 and no JSON
-		.then(() => res.sendStatus(204))
-		// if an error occurs, pass it to the handler
-		.catch(next)
-})
-
 // DESTROY -> DELETE /products/62489ab3463e04b5a380271e
 router.delete('/products/:id', requireToken, (req, res, next) => {
 	Product.findById(req.params.id)
@@ -202,8 +180,12 @@ router.post('/products/:productId', requireToken, (req, res, next) => {
         .catch(next)	
 	})
 
-// UPDATE - PUT /products/orderId
-router.put('/products/:orderId', requireToken, removeBlanks, (req, res, next) => {
+// UPDATE - Patch /products/orderId -> update Order collection in DB when checkout form is submitted
+router.patch('/products/:orderId', requireToken, removeBlanks, (req, res, next) => {
+	// If the client attempts to change the owner of the pet, we can disallow that from the getgo
+	console.log('req.body', req.body)
+	delete req.body.order.owner
+
 	const ownerid = req.body.order.owner
 	console.log('owner id: ', ownerid)
 
@@ -213,9 +195,10 @@ router.put('/products/:orderId', requireToken, removeBlanks, (req, res, next) =>
 	console.log('order', order)
 
 	// Find the order that belongs to the currently logged in user
-    Order.findOne({owner: ownerid})
+    Order.findById(req.params.orderId)
         .then(handle404)
         .then(order => {
+			requireOwnership(req, order)
 			// pass the result of Mongoose's `.update` to the next `.then`
 			console.log('this is the order', order)
 			// console.log(order)
