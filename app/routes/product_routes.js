@@ -238,6 +238,31 @@ router.get('/orders/:ownerId/confirmation', requireToken, (req,res,next) => {
     .catch(next)
 })
 
+<<<<<<< HEAD
+=======
+// UPDATE -> PATCH /products/5a7db6c74d55bc51bdf39793 -This will allow users to edit their product
+router.patch('/products/:id', requireToken, removeBlanks, (req, res, next) => {
+	// if the client attempts to change the `owner` property by including a new
+	// owner, prevent that by deleting that key/value pair
+	delete req.body.product.owner
+
+	Product.findById(req.params.id)
+		.then(handle404)
+		.then((product) => {
+			// pass the `req` object and the Mongoose record to `requireOwnership`
+			// it will throw an error if the current user isn't the owner
+			requireOwnership(req, product)
+
+			// pass the result of Mongoose's `.update` to the next `.then`
+			return product.updateOne(req.body.product)
+		})
+		// if that succeeded, return 204 and no JSON
+		.then(() => res.sendStatus(204))
+		// if an error occurs, pass it to the handler
+		.catch(next)
+})
+
+>>>>>>> 1e82d87e615b229570e8ecac32c47b922ef95bf0
 /***********************************************/
 
 module.exports = router
