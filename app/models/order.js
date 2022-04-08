@@ -3,6 +3,12 @@ const Product = require('./product')
 
 const orderSchema = new mongoose.Schema(
     {
+        firstName: {
+            type: String
+        },
+        lastName: {
+            type: String
+        },
         owner: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User'
