@@ -174,7 +174,7 @@ router.post('/products/:productId', requireToken, (req, res, next) => {
 				})
 				.catch(next)
 		})
-        // Then we send the pet as json
+        // Then we send the order as json
         .then( order => res.status(201).json({ order: order }))
         // Catch errors and send to the handler
         .catch(next)	
@@ -239,7 +239,7 @@ router.get('/orders/:ownerId/confirmation', requireToken, (req,res,next) => {
 })
 
 // UPDATE -> PATCH /products/5a7db6c74d55bc51bdf39793 -This will allow users to edit their product
-router.patch('/products/:id', requireToken, removeBlanks, (req, res, next) => {
+router.patch('/products/:id/edit', requireToken, removeBlanks, (req, res, next) => {
 	// if the client attempts to change the `owner` property by including a new
 	// owner, prevent that by deleting that key/value pair
 	delete req.body.product.owner

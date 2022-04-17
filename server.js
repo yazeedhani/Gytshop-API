@@ -22,6 +22,16 @@ const db = require('./config/db')
 // require configured passport authentication middleware
 const auth = require('./lib/auth')
 
+// require Stripe to accept payments
+const stripe = require('stripe')(process.env.STRIPE_PUBKEY)
+
+// Setup PaymentIntent Stripe Object to represent the intent to collect a payment form a customer.
+// const paymentIntent = await stripe.paymentIntents.create({
+// 	amount: 1099,
+// 	currency: 'usd',
+// 	metadata: {integration_check: 'accept_a_payment'},
+// })
+
 // define server and client ports
 // used for cors and local port declaration
 const serverDevPort = 8000
@@ -78,6 +88,23 @@ app.use(stripe_routes)
 // note that this comes after the route middlewares, because it needs to be
 // passed any error messages from them
 app.use(errorHandler)
+
+app.post('/create-checkout-session', async (req, res) => {
+	const session = await stripe.checkout.sessions.create({
+	  line_items: [
+		{
+		  // Provide the exact Price ID (for example, pr_1234) of the product you want to sell
+		  price: 999,
+		  quantity: 1,
+		},
+	  ],
+	  mode: 'payment',
+	  success_url: `http://localhost:${serverDevPort}?success=true`,
+	  cancel_url: `http://localhost:${serverDevPort}?canceled=true`,
+	});
+  
+	res.redirect(303, session.url);
+  });  
 
 // run API on designated port (4741 in this case)
 app.listen(port, () => {

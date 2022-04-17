@@ -36,10 +36,30 @@ const orderSchema = new mongoose.Schema(
                     ref: 'Product'
                 }
             ]
+        },
+        totalPrice: {
+            type: Number,
+            default: null
         }
     },{
 		timestamps: true,
+        toObject: {virtuals: true},
+        toJSON: {virtuals: true}
 	}
 )
+
+// orderSchema.virtual('totalPrice').get(function() {
+//     let total = 0
+
+//     for(let i = 0; i < this.productsOrdered.length; i++)
+//     {
+//         Product.findById(this.productsOrdered[i])
+//             .then( product => {
+//                 total += product.price
+//             })
+//     }
+
+//     return total
+// })
 
 module.exports = mongoose.model('Order', orderSchema)

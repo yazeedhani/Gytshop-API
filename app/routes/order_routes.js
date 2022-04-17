@@ -177,6 +177,16 @@ router.delete('/orders/:ownerId', requireToken, (req, res, next) => {
         
 })
 
+// PATCH -> 
+router.patch('/orders/:orderId/totalPrice', (req, res, next) => {
+    const orderid = req.params.orderId
+
+    Order.findById(orderid)
+        .then( order => {
+            res.send(order)
+        })
+        .catch(next)
+})
 /***********************************************/
 
 module.exports = router
