@@ -6,8 +6,7 @@
   "scripts": {
     "start": "nodemon server.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "seed" : "node ./app/models/seed.js"
-    
+    "seed": "node ./app/models/seed.js"
   },
   "author": "Yazeed Hani, Daena McClintock, Christopher Lee, Nash Forrester",
   "license": "ISC",
@@ -22,6 +21,7 @@
     "mongodb": "^4.2.1",
     "mongoose": "^6.1.1",
     "passport": "^0.5.0",
-    "passport-http-bearer": "^1.0.1"
+    "passport-http-bearer": "^1.0.1",
+    "stripe": "^8.216.0"
   }
 }
