@@ -159,7 +159,7 @@ router.post('/products/:productId', requireToken, (req, res, next) => {
         .then( order => {
             console.log('this is the product', productid)
             console.log('this is the order', order)
-            // console.log('this is the productsOrdered', order[0].productsOrdered)
+            console.log('this is the productsOrdered', order[0].productsOrdered)
             // Push the product to the productsOrdered array
             order[0].productsOrdered.push(productid)
             order[0].quantity++
